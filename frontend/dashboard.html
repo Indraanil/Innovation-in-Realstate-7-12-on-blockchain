@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BharatPropChain</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏛️ BharatPropChain</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding: 3rem 0;">
+        <div class="container">
+            <h1 class="section-title">My Dashboard</h1>
+
+            <!-- User Info -->
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h3>Account Information</h3>
+                <div id="userInfo" style="margin-top: 1rem;">
+                    <p>Please connect your wallet to view dashboard</p>
+                </div>
+            </div>
+
+            <!-- My Properties -->
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h3>My Properties</h3>
+                <div id="myProperties" class="property-grid" style="margin-top: 1rem;">
+                    <p>No properties registered yet</p>
+                </div>
+            </div>
+
+            <!-- My Investments -->
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h3>My Investments</h3>
+                <div id="myInvestments" style="margin-top: 1rem;">
+                    <p>No investments yet</p>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div style="background: white; padding: 2rem; border-radius: 12px;">
+                <h3>Recent Transactions</h3>
+                <div id="recentTransactions" style="margin-top: 1rem;">
+                    <p>No transactions yet</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="app.js"></script>
+    <script>
+        async function loadDashboard() {
+            if (!accessToken) {
+                return;
+            }
+
+            try {
+                const data = await apiCall('/api/user/dashboard');
+
+                // Display user info
+                const userInfo = document.getElementById('userInfo');
+                userInfo.innerHTML = `
+                    <p><strong>Wallet:</strong> ${data.user.wallet_address}</p>
+                    <p><strong>KYC Status:</strong> 
+                        <span class="badge ${data.user.kyc_status === 'verified' ? 'badge-success' : 'badge-warning'}">
+                            ${data.user.kyc_status}
+                        </span>
+                    </p>
+                `;
+
+                // Display properties
+                if (data.properties && data.properties.length > 0) {
+                    displayProperties(data.properties);
+                }
+
+                // Display transactions
+                if (data.transactions && data.transactions.length > 0) {
+                    const txnHTML = data.transactions.map(txn => `
+                        <div style="padding: 1rem; border-bottom: 1px solid #eee;">
+                            <p><strong>${txn.type.toUpperCase()}</strong> - ${txn.property_id}</p>
+                            <p>Amount: ${txn.token_amount} tokens | Price: ₹${formatPrice(txn.price)}</p>
+                            <p style="font-size: 0.9rem; color: #666;">${txn.timestamp}</p>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('recentTransactions').innerHTML = txnHTML;
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+
+</html>

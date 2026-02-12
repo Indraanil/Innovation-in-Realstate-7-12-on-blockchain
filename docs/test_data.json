@@ -1,0 +1,151 @@
+{
+  "test_users": [
+    {
+      "wallet_address": "DEMO1ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",
+      "name": "Rajesh Kumar",
+      "email": "rajesh@example.com",
+      "kyc_status": "verified",
+      "aadhaar": "1234 5678 9012",
+      "pan": "ABCDE1234F"
+    },
+    {
+      "wallet_address": "DEMO2XYZABCDEFGHIJKLMNOPQRST123456",
+      "name": "Priya Sharma",
+      "email": "priya@example.com",
+      "kyc_status": "verified",
+      "aadhaar": "9876 5432 1098",
+      "pan": "FGHIJ5678K"
+    }
+  ],
+  "test_properties": [
+    {
+      "name": "Tech Park Tower",
+      "type": "commercial",
+      "city": "Mumbai",
+      "location": "Bandra Kurla Complex, Mumbai, Maharashtra 400051",
+      "area_sqft": 50000,
+      "total_value": 50000000,
+      "total_tokens": 1000,
+      "bedrooms": 0,
+      "age_years": 3,
+      "amenities": ["24x7 Security", "Power Backup", "Parking", "Cafeteria"],
+      "clear_title": true,
+      "has_encumbrance": false,
+      "govt_approved": true,
+      "market_trend": "growing",
+      "annual_rental_income": 2500000
+    },
+    {
+      "name": "Green Valley Apartments",
+      "type": "residential",
+      "city": "Bangalore",
+      "location": "Whitefield, Bangalore, Karnataka 560066",
+      "area_sqft": 25000,
+      "total_value": 30000000,
+      "total_tokens": 500,
+      "bedrooms": 40,
+      "age_years": 2,
+      "amenities": ["Swimming Pool", "Gym", "Garden", "Clubhouse", "Security"],
+      "clear_title": true,
+      "has_encumbrance": false,
+      "govt_approved": true,
+      "market_trend": "growing",
+      "annual_rental_income": 1800000
+    },
+    {
+      "name": "IIT Campus Building",
+      "type": "campus",
+      "city": "Delhi",
+      "location": "Hauz Khas, New Delhi, Delhi 110016",
+      "area_sqft": 100000,
+      "total_value": 80000000,
+      "total_tokens": 2000,
+      "bedrooms": 0,
+      "age_years": 10,
+      "amenities": ["Library", "Labs", "Auditorium", "Sports Complex"],
+      "clear_title": true,
+      "has_encumbrance": false,
+      "govt_approved": true,
+      "market_trend": "stable",
+      "annual_rental_income": 0
+    },
+    {
+      "name": "Industrial Warehouse Complex",
+      "type": "industrial",
+      "city": "Pune",
+      "location": "Chakan, Pune, Maharashtra 410501",
+      "area_sqft": 75000,
+      "total_value": 40000000,
+      "total_tokens": 800,
+      "bedrooms": 0,
+      "age_years": 5,
+      "amenities": ["Loading Dock", "Security", "Power Backup", "Fire Safety"],
+      "clear_title": true,
+      "has_encumbrance": false,
+      "govt_approved": true,
+      "market_trend": "stable",
+      "annual_rental_income": 3200000
+    },
+    {
+      "name": "Luxury Villas",
+      "type": "residential",
+      "city": "Hyderabad",
+      "location": "Gachibowli, Hyderabad, Telangana 500032",
+      "area_sqft": 35000,
+      "total_value": 45000000,
+      "total_tokens": 900,
+      "bedrooms": 20,
+      "age_years": 1,
+      "amenities": ["Private Pool", "Garden", "Security", "Smart Home"],
+      "clear_title": true,
+      "has_encumbrance": false,
+      "govt_approved": true,
+      "market_trend": "growing",
+      "annual_rental_income": 2700000
+    }
+  ],
+  "test_transactions": [
+    {
+      "type": "buy",
+      "property_id": "PROP-1001",
+      "buyer": "DEMO2XYZABCDEFGHIJKLMNOPQRST123456",
+      "token_amount": 50,
+      "price": 2600000,
+      "timestamp": "2024-02-10T10:30:00Z"
+    },
+    {
+      "type": "buy",
+      "property_id": "PROP-1002",
+      "buyer": "DEMO1ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",
+      "token_amount": 100,
+      "price": 6000000,
+      "timestamp": "2024-02-11T14:15:00Z"
+    }
+  ],
+  "algorand_testnet_accounts": [
+    {
+      "purpose": "Admin Account",
+      "note": "Fund this account from https://bank.testnet.algorand.network/",
+      "required_balance": "10 ALGO minimum"
+    },
+    {
+      "purpose": "Demo User 1",
+      "note": "For testing property registration and tokenization"
+    },
+    {
+      "purpose": "Demo User 2",
+      "note": "For testing token purchases"
+    }
+  ],
+  "demo_workflow": {
+    "step1": "Connect wallet with demo address",
+    "step2": "Complete KYC with test Aadhaar/PAN",
+    "step3": "Register property using test data above",
+    "step4": "Upload sample property document",
+    "step5": "Run AI verification",
+    "step6": "Tokenize on Algorand TestNet",
+    "step7": "View on AlgoExplorer",
+    "step8": "Browse marketplace",
+    "step9": "Buy tokens as different user"
+  }
+}

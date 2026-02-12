@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - BharatPropChain</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏛️ BharatPropChain</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="marketplace">
+        <div class="container">
+            <h1 class="section-title">Property Marketplace</h1>
+            <p style="text-align: center; margin-bottom: 2rem;">
+                Invest in tokenized properties across India
+            </p>
+
+            <!-- Filters -->
+            <div class="filters" style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <select id="typeFilter" class="form-control">
+                        <option value="">All Types</option>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="campus">Campus</option>
+                        <option value="industrial">Industrial</option>
+                    </select>
+                    <select id="cityFilter" class="form-control">
+                        <option value="">All Cities</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="hyderabad">Hyderabad</option>
+                    </select>
+                    <select id="riskFilter" class="form-control">
+                        <option value="">All Risk Levels</option>
+                        <option value="low">Low Risk</option>
+                        <option value="medium">Medium Risk</option>
+                        <option value="high">High Risk</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Properties Grid -->
+            <div id="propertiesContainer" class="property-grid">
+                <p style="text-align: center;">Loading properties...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 BharatPropChain</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        // Load properties on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadProperties();
+        });
+    </script>
+</body>
+
+</html>

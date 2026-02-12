@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BharatPropChain - Property Tokenization Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Pera Wallet Connect SDK -->
+    <script src="https://unpkg.com/@perawallet/connect@1.3.1/dist/index.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏛️ BharatPropChain</h1>
+                <p class="tagline">Democratizing Real Estate Investment</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Transform Real Estate into Digital Assets</h1>
+                <p class="hero-subtitle">
+                    India's first blockchain-powered property tokenization platform.
+                    Own fractions of premium properties, trade securely, and earn rental income.
+                </p>
+                <div class="hero-buttons">
+                    <a href="register-property.html" class="btn-primary btn-large">Tokenize Property</a>
+                    <a href="marketplace.html" class="btn-secondary btn-large">Explore Properties</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <h3 id="totalProperties">0</h3>
+                    <p>Properties Tokenized</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalValue">₹0</h3>
+                    <p>Total Value Locked</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalUsers">0</h3>
+                    <p>Active Investors</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why BharatPropChain?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Blockchain Security</h3>
+                    <p>Built on Algorand blockchain for immutable, transparent property records</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Verification</h3>
+                    <p>ML-powered document verification, fraud detection, and risk scoring</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>Legal Compliance</h3>
+                    <p>KYC/AML verification, DigiLocker integration, and government registry linking</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Fractional Ownership</h3>
+                    <p>Invest in premium properties with as little as ₹10,000</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Automated Income</h3>
+                    <p>Smart contracts distribute rental income proportionally to token holders</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗳️</div>
+                    <h3>Governance Rights</h3>
+                    <p>Vote on property decisions based on your token ownership</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Complete KYC</h3>
+                    <p>Verify your identity with Aadhaar and PAN</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Register Property</h3>
+                    <p>Upload property documents for AI verification</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Tokenize</h3>
+                    <p>Create digital tokens on Algorand blockchain</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Trade & Earn</h3>
+                    <p>Buy, sell, and earn rental income automatically</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Get Started?</h2>
+            <p>Join India's property tokenization revolution</p>
+            <button id="getStartedBtn" class="btn-primary btn-large">Get Started Now</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BharatPropChain</h3>
+                    <p>Democratizing real estate investment through blockchain technology</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <a href="marketplace.html">Marketplace</a>
+                    <a href="register-property.html">Register Property</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Blockchain</h4>
+                    <p>Algorand TestNet</p>
+                    <a href="https://testnet.algoexplorer.io" target="_blank">AlgoExplorer</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 BharatPropChain. Built for hackathon demonstration.</p>
+                <p class="disclaimer">⚠️ Blockchain records are verification layers, not legal replacements</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        // Load platform stats
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analytics/platform`);
+                const data = await response.json();
+
+                document.getElementById('totalProperties').textContent = data.total_properties;
+                document.getElementById('totalValue').textContent =
+                    `₹${(data.total_value_locked / 10000000).toFixed(2)}Cr`;
+                document.getElementById('totalUsers').textContent = data.total_users;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        loadStats();
+        setInterval(loadStats, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+
+</html>

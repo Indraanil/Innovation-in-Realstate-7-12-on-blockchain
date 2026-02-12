@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Property - BharatPropChain</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏛️ BharatPropChain</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding: 3rem 0;">
+        <div class="container" style="max-width: 800px;">
+            <h1 class="section-title">Register Your Property</h1>
+
+            <!-- Progress Steps -->
+            <div class="progress-steps" style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <p>Property Details</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <p>Documents</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <p>Verification</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <p>Tokenization</p>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="propertyForm" style="background: white; padding: 2rem; border-radius: 12px;">
+                <h3 style="margin-bottom: 1.5rem;">Property Information</h3>
+
+                <div class="form-group">
+                    <label>Property Name *</label>
+                    <input type="text" id="propertyName" required placeholder="e.g., Green Valley Apartments">
+                </div>
+
+                <div class="form-group">
+                    <label>Property Type *</label>
+                    <select id="propertyType" required>
+                        <option value="">Select Type</option>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="campus">Campus</option>
+                        <option value="industrial">Industrial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>City *</label>
+                    <input type="text" id="city" required placeholder="e.g., Mumbai">
+                </div>
+
+                <div class="form-group">
+                    <label>Location/Address *</label>
+                    <textarea id="location" required rows="3" placeholder="Full address"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Area (sq ft) *</label>
+                    <input type="number" id="areaSqft" required placeholder="e.g., 2000">
+                </div>
+
+                <div class="form-group">
+                    <label>Total Property Value (₹) *</label>
+                    <input type="number" id="totalValue" required placeholder="e.g., 50000000">
+                </div>
+
+                <div class="form-group">
+                    <label>Total Tokens to Issue *</label>
+                    <input type="number" id="totalTokens" required value="1000" placeholder="e.g., 1000">
+                    <small style="color: #666;">Recommended: 100-10000 tokens</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Property Deed</label>
+                    <input type="file" id="propertyDeed" accept="image/*,.pdf">
+                </div>
+
+                <button type="submit" class="btn-primary btn-large" style="width: 100%;">
+                    Register Property
+                </button>
+            </form>
+
+            <!-- Results Section -->
+            <div id="resultsSection" style="display: none; margin-top: 2rem;">
+                <div style="background: white; padding: 2rem; border-radius: 12px;">
+                    <h3>✅ Property Registered Successfully!</h3>
+                    <p id="propertyId" style="margin: 1rem 0;"></p>
+
+                    <div id="verificationResults" style="margin-top: 1.5rem;"></div>
+
+                    <button id="tokenizeBtn" class="btn-primary btn-large" style="width: 100%; margin-top: 1rem;">
+                        Tokenize on Algorand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="app.js"></script>
+    <script>
+        let currentPropertyId = null;
+
+        document.getElementById('propertyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!accessToken) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('propertyName').value,
+                type: document.getElementById('propertyType').value,
+                city: document.getElementById('city').value,
+                location: document.getElementById('location').value,
+                area_sqft: parseInt(document.getElementById('areaSqft').value),
+                total_value: parseInt(document.getElementById('totalValue').value),
+                total_tokens: parseInt(document.getElementById('totalTokens').value)
+            };
+
+            // Register property
+            currentPropertyId = await registerProperty(formData);
+
+            if (currentPropertyId) {
+                // Upload document if provided
+                const fileInput = document.getElementById('propertyDeed');
+                if (fileInput.files.length > 0) {
+                    const uploadResult = await uploadDocument(currentPropertyId, fileInput.files[0], 'property_deed');
+                    console.log('Document uploaded:', uploadResult);
+                }
+
+                // Run verification
+                const verificationResult = await verifyProperty(currentPropertyId);
+
+                // Display results
+                document.getElementById('propertyId').textContent = `Property ID: ${currentPropertyId}`;
+
+                const resultsHTML = `
+                    <h4>AI Verification Results</h4>
+                    <p><strong>Risk Score:</strong> ${verificationResult.risk_score.overall_score}/100 
+                       (${verificationResult.risk_score.risk_category})</p>
+                    <p><strong>Predicted Value:</strong> ₹${formatPrice(verificationResult.valuation.predicted_value)}</p>
+                    <p><strong>Token Value:</strong> ₹${formatPrice(verificationResult.valuation.token_value)} per token</p>
+                `;
+
+                document.getElementById('verificationResults').innerHTML = resultsHTML;
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('propertyForm').style.display = 'none';
+            }
+        });
+
+        document.getElementById('tokenizeBtn')?.addEventListener('click', async function () {
+            if (!currentPropertyId) return;
+
+            const result = await tokenizeProperty(currentPropertyId);
+
+            if (result.success) {
+                alert(`Property tokenized successfully!\n\nAsset ID: ${result.asset_id}\n\nView on AlgoExplorer: ${result.explorer_url}`);
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+
+</html>
