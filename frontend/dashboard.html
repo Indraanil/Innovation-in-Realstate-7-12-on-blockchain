@@ -9,13 +9,16 @@
 </head>
 
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>🏛️ BharatPropChain</h1>
+                <h1 onclick="window.location.href='index.html'">🏛️ BharatPropChain</h1>
+                <p class="tagline">Investor Portal</p>
             </div>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="kyc-verification.html">KYC</a>
                 <a href="marketplace.html">Marketplace</a>
                 <a href="register-property.html">Register Property</a>
                 <a href="dashboard.html">Dashboard</a>
@@ -24,80 +27,268 @@
         </div>
     </nav>
 
-    <section style="padding: 3rem 0;">
+    <section style="padding: 4rem 0;" class="animate-in">
         <div class="container">
-            <h1 class="section-title">My Dashboard</h1>
+            <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="hero-title" style="font-size: 2.5rem; text-align: left; margin-bottom: 0.5rem;">My
+                        Dashboard</h1>
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">Track your RWA portfolio and performance.
+                    </p>
+                </div>
+                <div id="kycBadgeContainer"></div>
+            </div>
 
-            <!-- User Info -->
-            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
-                <h3>Account Information</h3>
-                <div id="userInfo" style="margin-top: 1rem;">
-                    <p>Please connect your wallet to view dashboard</p>
+            <!-- Dashboard Overview Grid -->
+            <div class="dashboard-grid" style="margin-bottom: 3rem;">
+                <div class="widget glass">
+                    <div class="widget-title">💸 Wallet Address</div>
+                    <div id="walletDisplay"
+                        style="font-family: monospace; font-size: 0.95rem; word-break: break-all; color: var(--text-muted);">
+                        Not Connected
+                    </div>
+                </div>
+                <div class="widget glass">
+                    <div class="widget-title">📈 Portfolio Value</div>
+                    <h2 id="totalPortfolioValue" style="font-size: 2rem; font-weight: 800; color: var(--primary);">₹0
+                    </h2>
+                </div>
+                <div class="widget glass">
+                    <div class="widget-title">🏛️ Properties Owned</div>
+                    <h2 id="ownedCount" style="font-size: 2rem; font-weight: 800; color: var(--accent);">0</h2>
                 </div>
             </div>
 
-            <!-- My Properties -->
-            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
-                <h3>My Properties</h3>
-                <div id="myProperties" class="property-grid" style="margin-top: 1rem;">
-                    <p>No properties registered yet</p>
+            <!-- Two Column Layout for Details -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+
+                <!-- My Investments -->
+                <div class="widget" style="padding: 0; overflow: hidden;">
+                    <div
+                        style="padding: 1.5rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 1.1rem;">Asset Portfolio</h3>
+                        <a href="marketplace.html" class="btn-secondary"
+                            style="font-size: 0.8rem; padding: 0.4rem 1rem;">Browse New</a>
+                    </div>
+                    <div id="myInvestments">
+                        <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                            <div class="skeleton" style="height: 100px; margin-bottom: 1rem;"></div>
+                            Loading your investments...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="widget" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
+                        <h3 style="font-size: 1.1rem;">History</h3>
+                    </div>
+                    <div id="recentTransactions" style="max-height: 500px; overflow-y: auto;">
+                        <div style="padding: 2rem;">
+                            <div class="skeleton" style="height: 40px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton" style="height: 40px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton" style="height: 40px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- My Investments -->
-            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
-                <h3>My Investments</h3>
-                <div id="myInvestments" style="margin-top: 1rem;">
-                    <p>No investments yet</p>
+            <!-- My Registered Assets -->
+            <div style="margin-top: 4rem;">
+                <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 1.5rem; font-weight: 800;">Registered Assets</h2>
+                    <button onclick="window.location.href='register-property.html'" class="btn-primary">Register New
+                        Asset</button>
+                </div>
+                <div id="myProperties" class="property-grid">
+                    <p style="color: var(--text-muted);">No assets registered yet.</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Transactions -->
-            <div style="background: white; padding: 2rem; border-radius: 12px;">
-                <h3>Recent Transactions</h3>
-                <div id="recentTransactions" style="margin-top: 1rem;">
-                    <p>No transactions yet</p>
+        <!-- Sell Modal Overhaul -->
+        <div id="sellModal" class="modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); z-index: 2000; backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+            <div class="widget animate-in"
+                style="width: 90%; max-width: 450px; padding: 2.5rem; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Liquidate Tokens</h2>
+                <p id="sellModalProperty" style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem;">
+                    Property Name</p>
+
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label style="margin-bottom: 0;">Amount to Sell</label>
+                        <button onclick="setMaxSell()"
+                            style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Use
+                            Max</button>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="number" id="sellAmount" placeholder="0"
+                            style="padding-right: 4.5rem; font-weight: 700; font-size: 1.25rem;">
+                        <span
+                            style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: 600; font-size: 0.8rem;">TOKENS</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">Balance: <span
+                            id="sellModalBalance" style="font-weight: 700;">0</span> available</p>
+                </div>
+
+                <div class="glass" style="padding: 1.25rem; border-radius: 12px; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.9rem; color: var(--text-muted);">Estimated Value</span>
+                        <span style="font-size: 1.25rem; font-weight: 800; color: var(--accent);">₹<span
+                                id="sellEstimatedValue">0</span></span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                    <button onclick="confirmSell()" class="btn-primary"
+                        style="justify-content: center; padding: 1rem;">Confirm Sale</button>
+                    <button onclick="closeSellModal()" class="btn-secondary" style="padding: 1rem;">Cancel</button>
                 </div>
             </div>
         </div>
     </section>
 
+    <script src="payment-gateway.js"></script>
     <script src="app.js"></script>
     <script>
-        async function loadDashboard() {
-            if (!accessToken) {
+        // Modal State
+        let currentSellProperty = null;
+        let currentMaxSell = 0;
+        let currentTokenValue = 0;
+
+        function openSellModal(propId, propName, balance, tokenValue) {
+            currentSellProperty = propId;
+            currentMaxSell = balance;
+            currentTokenValue = tokenValue;
+
+            document.getElementById('sellModalProperty').textContent = propName;
+            document.getElementById('sellModalBalance').textContent = balance;
+            document.getElementById('sellAmount').value = '';
+            document.getElementById('sellAmount').style.borderColor = 'var(--border-light)';
+            document.getElementById('sellEstimatedValue').textContent = '0';
+            document.getElementById('sellModal').style.display = 'flex';
+
+            // Calc value on input
+            document.getElementById('sellAmount').oninput = function () {
+                const amount = parseFloat(this.value) || 0;
+                const valueDisplay = document.getElementById('sellEstimatedValue');
+                const input = document.getElementById('sellAmount');
+
+                valueDisplay.textContent = formatPrice(amount * currentTokenValue);
+
+                if (amount > currentMaxSell) {
+                    input.style.borderColor = 'var(--danger)';
+                    valueDisplay.parentElement.style.color = 'var(--danger)';
+                } else {
+                    input.style.borderColor = 'var(--primary)';
+                    valueDisplay.parentElement.style.color = 'inherit';
+                }
+            };
+        }
+
+        function setMaxSell() {
+            document.getElementById('sellAmount').value = currentMaxSell;
+            document.getElementById('sellAmount').oninput();
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').style.display = 'none';
+        }
+
+        async function confirmSell() {
+            const amount = parseInt(document.getElementById('sellAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid positive amount.');
+                return;
+            }
+            if (amount > currentMaxSell) {
+                alert(`Insufficient tokens! You only have ${currentMaxSell} tokens available.`);
                 return;
             }
 
+            const result = await sellTokens(currentSellProperty, amount);
+            if (result && result.success) {
+                closeSellModal();
+                loadDashboard();
+            }
+        }
+
+        async function loadDashboard() {
+            if (!accessToken) return;
+
             try {
+                // Show skeletons if needed
                 const data = await apiCall('/api/user/dashboard');
 
-                // Display user info
-                const userInfo = document.getElementById('userInfo');
-                userInfo.innerHTML = `
-                    <p><strong>Wallet:</strong> ${data.user.wallet_address}</p>
-                    <p><strong>KYC Status:</strong> 
-                        <span class="badge ${data.user.kyc_status === 'verified' ? 'badge-success' : 'badge-warning'}">
-                            ${data.user.kyc_status}
-                        </span>
-                    </p>
-                `;
+                // Update User Stats
+                document.getElementById('walletDisplay').textContent = data.user.wallet_address;
+                const kycBadge = document.getElementById('kycBadgeContainer');
+                kycBadge.innerHTML = `<div class="badge ${data.user.kyc_status === 'verified' ? 'badge-success' : 'badge-warning'}">
+                    ${data.user.kyc_status === 'verified' ? '✅ ID Verified' : '⚠️ Pending KYC'}
+                </div>`;
 
-                // Display properties
+                // Display properties (Owner)
                 if (data.properties && data.properties.length > 0) {
-                    displayProperties(data.properties);
+                    displayProperties(data.properties, 'myProperties');
                 }
 
-                // Display transactions
-                if (data.transactions && data.transactions.length > 0) {
-                    const txnHTML = data.transactions.map(txn => `
-                        <div style="padding: 1rem; border-bottom: 1px solid #eee;">
-                            <p><strong>${txn.type.toUpperCase()}</strong> - ${txn.property_id}</p>
-                            <p>Amount: ${txn.token_amount} tokens | Price: ₹${formatPrice(txn.price)}</p>
-                            <p style="font-size: 0.9rem; color: #666;">${txn.timestamp}</p>
-                        </div>
-                    `).join('');
+                // Display Portfolio
+                const portfolio = data.user.portfolio || {};
+                const investmentsDiv = document.getElementById('myInvestments');
+                let totalVal = 0;
+                let ownedProps = 0;
 
+                if (Object.keys(portfolio).length > 0) {
+                    let portfolioHTML = `<div class="table-container"><table><thead><tr>
+                        <th>Asset</th><th>Units</th><th>Market Value</th><th>Action</th>
+                    </tr></thead><tbody>`;
+
+                    for (const [propId, amount] of Object.entries(portfolio)) {
+                        if (amount <= 0) continue;
+                        ownedProps++;
+                        const property = data.properties ? data.properties.find(p => p.property_id === propId) : null;
+                        const propName = property ? property.name : propId;
+                        const propValue = property ? (property.total_value / property.total_tokens) : 0;
+                        const currentValue = propValue * amount;
+                        totalVal += currentValue;
+
+                        portfolioHTML += `<tr>
+                            <td><strong>${propName}</strong><br><small style="color: var(--text-muted);">${propId}</small></td>
+                            <td><span style="font-weight: 600;">${amount}</span></td>
+                            <td><span style="font-weight: 600;">₹${formatPrice(currentValue)}</span></td>
+                            <td><button onclick="openSellModal('${propId}', '${propName}', ${amount}, ${propValue})" class="btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">Sell</button></td>
+                        </tr>`;
+                    }
+                    portfolioHTML += '</tbody></table></div>';
+                    investmentsDiv.innerHTML = portfolioHTML;
+                } else {
+                    investmentsDiv.innerHTML = '<div style="padding: 3rem; text-align: center;"><p style="color: var(--text-muted); margin-bottom: 1rem;">No investments found.</p><a href="marketplace.html" class="btn-primary">Browse Marketplace</a></div>';
+                }
+
+                document.getElementById('totalPortfolioValue').textContent = `₹${formatPrice(totalVal)}`;
+                document.getElementById('ownedCount').textContent = ownedProps;
+
+                // Transactions
+                if (data.transactions && data.transactions.length > 0) {
+                    data.transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    const txnHTML = data.transactions.map(txn => {
+                        const isBuy = txn.type === 'buy';
+                        return `<div style="padding: 1.25rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                    <span style="font-size: 0.8rem; background: ${isBuy ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; color: ${isBuy ? 'var(--accent-dark)' : 'var(--danger)'}; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;">${txn.type}</span>
+                                    <span style="font-weight: 600; font-size: 0.95rem;">${txn.property_id}</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">${new Date(txn.timestamp).toLocaleString()}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: ${isBuy ? 'var(--accent-dark)' : 'var(--danger)'};">${isBuy ? '+' : '-'}${txn.token_amount} TOKENS</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">₹${formatPrice(txn.price)}</div>
+                            </div>
+                        </div>`;
+                    }).join('');
                     document.getElementById('recentTransactions').innerHTML = txnHTML;
                 }
 

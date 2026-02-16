@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Details - BharatPropChain</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 onclick="window.location.href='index.html'">🏛️ BharatPropChain</h1>
+                <p class="tagline">Property Market</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="kyc-verification.html">KYC</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container animate-in" style="padding: 4rem 1rem;">
+        <div style="margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <nav style="margin-bottom: 1rem;">
+                    <a href="marketplace.html"
+                        style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← Back to
+                        Marketplace</a>
+                </nav>
+                <h1 class="hero-title" id="propertyTitle"
+                    style="text-align: left; font-size: 3rem; margin-bottom: 0.5rem;">Loading Asset...</h1>
+                <p id="propertyLocation" style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">📍
+                    Loading...</p>
+            </div>
+            <div id="propertyBadges" style="display: flex; gap: 0.75rem;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+            <!-- Column 1: Details & Analysis -->
+            <div>
+                <!-- Key Stats Grid -->
+                <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2.5rem;">
+                    <div class="widget glass">
+                        <div class="widget-title">Asset Valuation</div>
+                        <h2 id="totalValue" style="color: var(--primary); font-size: 1.75rem; font-weight: 800;">₹0</h2>
+                    </div>
+                    <div class="widget glass">
+                        <div class="widget-title">Token Price</div>
+                        <h2 id="tokenPrice" style="color: var(--accent); font-size: 1.75rem; font-weight: 800;">₹0</h2>
+                    </div>
+                    <div class="widget glass">
+                        <div class="widget-title">AI Trust Score</div>
+                        <h2 id="aiScore" style="color: var(--accent-dark); font-size: 1.75rem; font-weight: 800;">0/100
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Tabbed Content (Simplified for now) -->
+                <div class="widget" style="padding: 2.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem;">Property Specifications</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Asset Class</label>
+                            <p id="propertyType" style="font-weight: 700; color: var(--text-dark);">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Total Surface Area</label>
+                            <p id="propertyArea" style="font-weight: 700; color: var(--text-dark);">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Ownership ID</label>
+                            <p id="propertyOwner"
+                                style="font-family: monospace; color: var(--text-muted); font-size: 0.9rem;">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Verification Date</label>
+                            <p id="registeredDate" style="font-weight: 700; color: var(--text-dark);">-</p>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 3rem; margin-bottom: 1.5rem;">
+                        Institutional Analysis</h2>
+                    <div style="display: grid; gap: 1.5rem;">
+                        <div>
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600;">
+                                <span>Legal Document Verification</span>
+                                <span id="docVerification" style="color: var(--accent-dark);">Pending</span>
+                            </div>
+                            <div class="progress-container">
+                                <div id="docProgress" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600;">
+                                <span>ML Fraud Detection Score</span>
+                                <span id="fraudScore" style="color: var(--accent-dark);">0/100</span>
+                            </div>
+                            <div class="progress-container">
+                                <div id="fraudProgress" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 600;">
+                                <span>Algorand Asset Status</span>
+                                <span id="blockchainTx" style="font-family: monospace; font-size: 0.8rem;">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 3rem; margin-bottom: 1.5rem;">Geospatial
+                        Context</h2>
+                    <div id="propertyMap"
+                        style="height: 400px; border-radius: 16px; border: 1px solid var(--border-light); overflow: hidden; z-index: 1;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Trade Desk -->
+            <div>
+                <div class="widget glass"
+                    style="position: sticky; top: 6rem; padding: 2.5rem; border: 1px solid var(--primary-light);">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Trade Asset</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Participate in institutional RWA
+                        fractionalization.</p>
+
+                    <div
+                        style="background: rgba(255,255,255,0.5); padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                            <span style="color: var(--text-muted);">Available Supply</span>
+                            <span id="availableTokensSidebar" style="font-weight: 800; color: var(--primary);">0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-muted);">Unit Price</span>
+                            <span id="tokenPriceSidebar" style="font-weight: 800; color: var(--accent);">₹0</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Investment Amount (Tokens)</label>
+                        <div style="position: relative;">
+                            <input type="number" id="tokenAmount" placeholder="0" value="1" min="1"
+                                style="font-size: 1.25rem; font-weight: 800; padding: 1rem 1.25rem; padding-right: 4.5rem;">
+                            <span
+                                style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: 650; font-size: 0.8rem;">TOKENS</span>
+                        </div>
+                    </div>
+
+                    <div class="glass"
+                        style="padding: 1.5rem; border-radius: 12px; margin-top: 1.5rem; border: 1px solid var(--border-light);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600; color: var(--text-muted);">Total Order Value</span>
+                            <span style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">₹<span
+                                    id="totalCost">0</span></span>
+                        </div>
+                    </div>
+
+                    <button id="buyBtn" class="btn-primary"
+                        style="width: 100%; justify-content: center; padding: 1.25rem; border-radius: 12px; font-size: 1.1rem; margin-top: 2rem;">
+                        Confirm Purchase
+                    </button>
+
+                    <div style="margin-top: 2.5rem; border-top: 1px solid var(--border-light); padding-top: 1.5rem;">
+                        <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-dark);">
+                            Why invest in this asset?</h4>
+                        <ul style="list-style: none; padding: 0; display: grid; gap: 0.75rem;">
+                            <li
+                                style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                                ✅ Regular Rental Yields</li>
+                            <li
+                                style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                                ✅ Low Threshold Participation</li>
+                            <li
+                                style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                                ✅ High Liquid Secondary Market</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="payment-gateway.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let currentProperty = null;
+
+        window.addEventListener('load', async () => {
+            await loadPropertyDetails();
+        });
+
+        async function loadPropertyDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('id');
+
+            if (!propertyId) {
+                alert('Property ID not found');
+                window.location.href = 'marketplace.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentProperty = data.property;
+                    displayPropertyDetails(currentProperty);
+                } else {
+                    alert('Property not found');
+                    window.location.href = 'marketplace.html';
+                }
+            } catch (error) {
+                console.error('Error loading property:', error);
+                alert('Failed to load property details');
+            }
+        }
+
+        function displayPropertyDetails(property) {
+            // Header & Location
+            document.getElementById('propertyTitle').textContent = property.name || 'Untitled Asset';
+            document.getElementById('propertyLocation').textContent = `📍 ${property.location || property.city || 'Location Pending'}`;
+
+            // Badges
+            const badgesDiv = document.getElementById('propertyBadges');
+            badgesDiv.innerHTML = `
+                <span class="badge ${property.status === 'tokenized' ? 'badge-success' : 'badge-warning'}" style="padding: 0.5rem 1rem; font-size: 1rem;">
+                    ${property.status === 'tokenized' ? '✓ Institutional Asset' : '⏳ Verification Step'}
+                </span>
+                <span class="badge badge-info" style="padding: 0.5rem 1rem; font-size: 1rem;">${property.type || 'RWA'}</span>
+            `;
+
+            // Valuation Stats
+            const valuation = property.total_value || 0;
+            document.getElementById('totalValue').textContent = `₹${formatPrice(valuation)}`;
+
+            // Token Calculation
+            const totalTokens = property.total_tokens || 1000;
+            const tokenPrice = valuation / totalTokens;
+            document.getElementById('tokenPrice').textContent = `₹${formatPrice(tokenPrice)}`;
+            document.getElementById('tokenPriceSidebar').textContent = `₹${formatPrice(tokenPrice)}`;
+
+            // Supply details
+            const available = property.available_tokens !== undefined ? property.available_tokens : totalTokens;
+            document.getElementById('availableTokensSidebar').textContent = available;
+
+            // AI Scoring
+            const aiScore = property.ai_verification ? property.ai_verification.risk_score.overall_score :
+                (property.risk_score ? property.risk_score : 75);
+            document.getElementById('aiScore').textContent = `${aiScore}/100`;
+
+            // Tech specs
+            document.getElementById('propertyType').textContent = property.type || property.property_type || 'RWA';
+            document.getElementById('propertyArea').textContent = `${(property.area_sqft || property.area || 0).toLocaleString()} sq ft`;
+
+            const ownerId = property.owner || property.owner_id || 'Institutional';
+            document.getElementById('propertyOwner').textContent = ownerId.length > 20
+                ? `${ownerId.substring(0, 10)}...${ownerId.substring(ownerId.length - 8)}`
+                : ownerId;
+
+            const createdDate = property.created_at || new Date().toISOString();
+            document.getElementById('registeredDate').textContent = new Date(createdDate).toLocaleDateString('en-IN', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            // Verification Analysis
+            const docVerified = property.documents && property.documents.length > 0;
+            document.getElementById('docVerification').textContent = docVerified ? '100% Verified' : 'In Review';
+            document.getElementById('docProgress').style.width = docVerified ? '100%' : '65%';
+
+            const fraudScoreVal = property.ai_verification ? property.ai_verification.fraud_score : 92;
+            document.getElementById('fraudScore').textContent = `${fraudScoreVal}/100 Safe`;
+            document.getElementById('fraudProgress').style.width = `${fraudScoreVal}%`;
+
+            document.getElementById('blockchainTx').textContent = property.asset_id
+                ? `ALGO ASA ID: ${property.asset_id}`
+                : 'Minting ASA in progress...';
+
+            // Store for price calculation
+            currentProperty.token_price = tokenPrice;
+            currentProperty.available_tokens = available;
+
+            updateTotalCost();
+
+            // Render Map
+            if (property.coordinates) {
+                setTimeout(() => {
+                    const map = L.map('propertyMap', { scrollWheelZoom: false }).setView([
+                        property.coordinates.lat,
+                        property.coordinates.lng
+                    ], 16);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(map);
+
+                    L.marker([property.coordinates.lat, property.coordinates.lng])
+                        .addTo(map)
+                        .bindPopup(`<b>${property.name}</b>`)
+                        .openPopup();
+                }, 200);
+            } else {
+                document.getElementById('propertyMap').innerHTML = '<div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #f8fafc; color: var(--text-muted);">Satellite visualization unavailable for this asset.</div>';
+            }
+        }
+
+        document.getElementById('tokenAmount').addEventListener('input', updateTotalCost);
+
+        function updateTotalCost() {
+            if (!currentProperty) return;
+            const amount = parseInt(document.getElementById('tokenAmount').value) || 0;
+            const total = amount * currentProperty.token_price;
+            document.getElementById('totalCost').textContent = formatPrice(total);
+        }
+
+        document.getElementById('buyBtn').addEventListener('click', async () => {
+            if (!currentProperty) return;
+            const amount = parseInt(document.getElementById('tokenAmount').value);
+            if (!amount || amount < 1) {
+                alert('Please enter a valid investment amount.');
+                return;
+            }
+            if (amount > currentProperty.available_tokens) {
+                alert(`Investment cap exceeded. Only ${currentProperty.available_tokens} tokens remain.`);
+                return;
+            }
+
+            const confirmBtn = document.getElementById('buyBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Processing...';
+
+            const transaction = await buyTokens(currentProperty.property_id, amount);
+
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Confirm Purchase';
+
+            if (transaction) {
+                await loadPropertyDetails();
+            }
+        });
+    </script>
+</body>
+
+</html>

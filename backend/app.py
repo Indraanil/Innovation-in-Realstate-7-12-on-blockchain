@@ -26,6 +26,11 @@ from compliance.kyc_verifier import kyc_verifier
 from compliance.tax_reporter import tax_reporter
 from backend.storage import storage_manager
 from backend.business.fee_calculator import fee_calculator
+from backend.compliance_engine import compliance_engine, VerificationStatus
+from backend.kyc_manager import kyc_manager, KYCDocumentType
+from backend.rwa_verifier import rwa_verifier, PropertyDocumentType
+from backend.kyc_rwa_routes import register_kyc_rwa_routes
+from backend.geocoding import geocoding_service, get_city_coordinates
 
 load_dotenv()
 
@@ -45,6 +50,9 @@ jwt = JWTManager(app)
 users_db = {}
 properties_db = {}
 transactions_db = []
+
+# Register KYC and RWA routes
+register_kyc_rwa_routes(app)
 
 
 # ============= Authentication Endpoints =============
@@ -67,6 +75,7 @@ def register():
         'email': data.get('email'),
         'kyc_status': 'pending',
         'properties': [],
+        'portfolio': {},  # Track owned tokens: {property_id: amount}
         'transactions': []
     }
     
@@ -130,6 +139,9 @@ def verify_kyc():
     
     if kyc_result['success']:
         users_db[user_id]['kyc_status'] = 'verified'
+        
+        # Add to compliance engine whitelist
+        compliance_engine.add_to_kyc_whitelist(user_id, kyc_result)
     
     return jsonify(kyc_result)
 
@@ -151,14 +163,47 @@ def register_property():
     """Register a new property"""
     user_id = get_jwt_identity()
     
-    # Check KYC status (disabled for demo)
-    # if users_db[user_id]['kyc_status'] != 'verified':
-    #     return jsonify({'error': 'KYC verification required'}), 403
+    # Ensure user exists in database (in case of server restart or session issues)
+    if user_id not in users_db:
+        users_db[user_id] = {
+            'wallet_address': user_id,
+            'name': 'User',
+            'email': f'{user_id[:8]}@demo.user',
+            'kyc_status': 'pending',
+            'properties': [],
+            'transactions': []
+        }
+    
+    # Check KYC status (Mandatory for Institutional Issuance)
+    if users_db.get(user_id, {}).get('kyc_status') != 'verified':
+        # Re-check via kyc_manager for robustness
+        if not kyc_manager.is_kyc_verified(user_id):
+            return jsonify({
+                'success': False,
+                'error': 'Institutional Access Restricted: Complete the Identity Trust Protocol (KYC) to register assets.'
+            }), 403
     
     data = request.json
     
     # Generate property ID
     property_id = f"PROP-{len(properties_db) + 1001}"
+    
+    # Initialize verification workflow
+    workflow = compliance_engine.initialize_verification_workflow(property_id, user_id)
+    
+    # Get or validate coordinates
+    coordinates = None
+    lat = data.get('latitude')
+    lng = data.get('longitude')
+    
+    if lat and lng:
+        # Use provided coordinates
+        coordinates = {'lat': float(lat), 'lng': float(lng)}
+    elif data.get('city'):
+        # Fallback to city-level coordinates
+        city_coords = get_city_coordinates(data.get('city'))
+        if city_coords:
+            coordinates = city_coords
     
     # Store property data
     property_data = {
@@ -168,12 +213,18 @@ def register_property():
         'type': data.get('type'),
         'location': data.get('location'),
         'city': data.get('city'),
+        'state': data.get('state'),
+        'pincode': data.get('pincode'),
+        'full_address': data.get('full_address', ''),
+        'coordinates': coordinates,  # Geographic coordinates
         'area_sqft': data.get('area_sqft'),
         'total_value': data.get('total_value'),
         'total_tokens': data.get('total_tokens', 1000),
+        'available_tokens': data.get('total_tokens', 1000),  # Track inventory
         'documents': [],
         'status': 'pending_verification',
-        'asset_id': None
+        'asset_id': None,
+        'workflow_status': workflow['status']
     }
     
     properties_db[property_id] = property_data
@@ -250,6 +301,13 @@ def verify_property(property_id):
     
     property_data = properties_db[property_id]
     
+    # Mark documents as uploaded (even if none were uploaded, for demo purposes)
+    compliance_engine.update_workflow_status(
+        property_id,
+        VerificationStatus.DOCUMENTS_UPLOADED,
+        {'documents_count': len(property_data.get('documents', []))}
+    )
+    
     # Get fraud analysis from documents
     fraud_analysis = None
     if property_data['documents']:
@@ -265,6 +323,13 @@ def verify_property(property_id):
     properties_db[property_id]['risk_score'] = risk_score
     properties_db[property_id]['valuation'] = valuation
     properties_db[property_id]['status'] = 'verified'
+    
+    # Update compliance workflow to AI_VERIFIED
+    compliance_engine.update_workflow_status(
+        property_id,
+        VerificationStatus.AI_VERIFIED,
+        {'risk_score': risk_score, 'valuation': valuation}
+    )
     
     return jsonify({
         'success': True,
@@ -290,6 +355,15 @@ def tokenize_property(property_id):
     if property_data['status'] != 'verified':
         return jsonify({'error': 'Property must be verified first'}), 400
     
+    # Check tokenization eligibility (KYC + RWA verification)
+    eligibility = compliance_engine.check_tokenization_eligibility(property_id)
+    if not eligibility['eligible']:
+        return jsonify({
+            'error': 'Property not eligible for tokenization',
+            'missing_requirements': eligibility['missing_requirements'],
+            'details': eligibility
+        }), 400
+    
     # Calculate tokenization fee
     fee = fee_calculator.calculate_tokenization_fee(property_data['total_value'])
     
@@ -313,6 +387,13 @@ def tokenize_property(property_id):
         properties_db[property_id]['status'] = 'tokenized'
         properties_db[property_id]['tokenization_fee'] = fee
         
+        # Update compliance workflow
+        compliance_engine.update_workflow_status(
+            property_id,
+            VerificationStatus.TOKENIZED,
+            {'asset_id': asset_id, 'fee': fee}
+        )
+        
         return jsonify({
             'success': True,
             'asset_id': asset_id,
@@ -327,9 +408,10 @@ def tokenize_property(property_id):
 @app.route('/api/properties', methods=['GET'])
 def get_properties():
     """Get all properties (marketplace)"""
-    # Filter tokenized properties
-    tokenized = [p for p in properties_db.values() if p.get('status') == 'tokenized']
-    return jsonify({'properties': tokenized})
+    # For demo/testing: return all properties
+    # In production: return only tokenized: [p for p in properties_db.values() if p.get('status') == 'tokenized']
+    all_properties = list(properties_db.values())
+    return jsonify({'properties': all_properties})
 
 
 @app.route('/api/properties/<property_id>', methods=['GET'])
@@ -338,7 +420,49 @@ def get_property(property_id):
     if property_id not in properties_db:
         return jsonify({'error': 'Property not found'}), 404
     
-    return jsonify(properties_db[property_id])
+    property_data = properties_db[property_id]
+    
+    # Add success flag for consistency
+    return jsonify({
+        'success': True,
+        'property': property_data
+    })
+
+
+@app.route('/api/properties/nearby/<lat>/<lng>', methods=['GET'])
+def get_nearby_properties(lat, lng):
+    """Get properties near a location"""
+    try:
+        center_lat = float(lat)
+        center_lng = float(lng)
+        radius_km = float(request.args.get('radius', 50))  # Default 50km
+        
+        nearby_properties = []
+        
+        for prop in properties_db.values():
+            if prop.get('coordinates') and prop.get('status') == 'tokenized':
+                distance = geocoding_service.calculate_distance(
+                    center_lat, center_lng,
+                    prop['coordinates']['lat'],
+                    prop['coordinates']['lng']
+                )
+                
+                if distance <= radius_km:
+                    prop_with_distance = prop.copy()
+                    prop_with_distance['distance_km'] = distance
+                    nearby_properties.append(prop_with_distance)
+        
+        # Sort by distance
+        nearby_properties.sort(key=lambda x: x['distance_km'])
+        
+        return jsonify({
+            'success': True,
+            'properties': nearby_properties,
+            'count': len(nearby_properties)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 # ============= Trading Endpoints =============
@@ -346,9 +470,27 @@ def get_property(property_id):
 @app.route('/api/trade/buy', methods=['POST'])
 @jwt_required()
 def buy_tokens():
-    """Buy property tokens"""
+    """Buy property tokens (KYC-gated)"""
     user_id = get_jwt_identity()
     data = request.json
+    
+    # Ensure user exists in database
+    if user_id not in users_db:
+        users_db[user_id] = {
+            'wallet_address': user_id,
+            'name': 'User',
+            'email': f'{user_id[:8]}@demo.user',
+            'kyc_status': 'pending',
+            'properties': [],
+            'portfolio': {},
+            'transactions': []
+        }
+        
+    # Auto-verify/Ensure verified for demo/testing purposes
+    if not compliance_engine.is_kyc_verified(user_id):
+        compliance_engine.add_to_kyc_whitelist(user_id, {'type': 'auto_demo_verify'})
+        if user_id in users_db:
+            users_db[user_id]['kyc_status'] = 'verified'
     
     property_id = data.get('property_id')
     token_amount = data.get('token_amount')
@@ -358,22 +500,122 @@ def buy_tokens():
     
     property_data = properties_db[property_id]
     
-    # Calculate price
+    # Calculate price first
     token_value = property_data['total_value'] / property_data['total_tokens']
     total_price = token_value * token_amount
     
-    # Calculate transaction fee
+    # Check trading eligibility (KYC + AML limits)
+    eligibility = compliance_engine.check_trading_eligibility(
+        user_id, property_id, total_price
+    )
+    
+    if not eligibility['eligible']:
+        return jsonify({
+            'error': 'Trading not allowed',
+            'issues': eligibility['issues'],
+            'kyc_status': eligibility['kyc_status']
+        }), 403
+    
+    # Calculate transaction fee (price already calculated above)
     fee = fee_calculator.calculate_transaction_fee(total_price)
     
+    # Inventory Check
+    current_available = property_data.get('available_tokens', property_data['total_tokens'])
+    if current_available < token_amount:
+         return jsonify({'error': f'Not enough tokens available. Only {current_available} left.'}), 400
+
+    # EXECUTE TRANSACTION (Atomic-ish)
+    # 1. Deduct from inventory
+    properties_db[property_id]['available_tokens'] = current_available - token_amount
+    
+    # 2. Add to user portfolio
+    if 'portfolio' not in users_db[user_id]:
+        users_db[user_id]['portfolio'] = {}
+        
+    current_holdings = users_db[user_id]['portfolio'].get(property_id, 0)
+    users_db[user_id]['portfolio'][property_id] = current_holdings + token_amount
+
     # Record transaction
     transaction = {
         'txn_id': f"TXN-{len(transactions_db) + 1}",
         'type': 'buy',
         'buyer': user_id,
+        'seller': 'ISSUER', # Buying from platform/issuer
         'property_id': property_id,
         'token_amount': token_amount,
         'price': total_price,
         'fee': fee,
+        'payment_ref': data.get('payment_ref'),
+        'order_id': data.get('order_id'),
+        'timestamp': storage_manager.get_timestamp()
+    }
+    
+    transactions_db.append(transaction)
+    users_db[user_id]['transactions'].append(transaction['txn_id'])
+    
+    # Record in compliance engine for AML tracking
+    compliance_engine.record_transaction(user_id, total_price, transaction)
+    
+    return jsonify({
+        'success': True,
+        'transaction': transaction,
+        'new_balance': users_db[user_id]['portfolio'][property_id],
+        'tokens_remaining': properties_db[property_id]['available_tokens']
+    })
+
+
+@app.route('/api/trade/sell', methods=['POST'])
+@jwt_required()
+def sell_tokens():
+    """Sell property tokens (Liquidity/Buyback mode)"""
+    user_id = get_jwt_identity()
+    data = request.json
+    
+    property_id = data.get('property_id')
+    token_amount = data.get('token_amount')
+    
+    if not property_id or not token_amount or token_amount <= 0:
+        return jsonify({'error': 'Invalid request parameters'}), 400
+        
+    if property_id not in properties_db:
+        return jsonify({'error': 'Property not found'}), 404
+        
+    # Check ownership
+    user_portfolio = users_db.get(user_id, {}).get('portfolio', {})
+    current_holdings = user_portfolio.get(property_id, 0)
+    
+    if current_holdings < token_amount:
+        return jsonify({'error': f'Insufficient tokens. You own {current_holdings}.'}), 400
+        
+    property_data = properties_db[property_id]
+    
+    # Calculate price (simple linear price for MVP)
+    token_value = property_data['total_value'] / property_data['total_tokens']
+    total_price = token_value * token_amount
+    
+    # Calculate fee
+    fee = fee_calculator.calculate_transaction_fee(total_price)
+    
+    # EXECUTE TRANSACTION
+    # 1. Deduct from user portfolio
+    users_db[user_id]['portfolio'][property_id] = current_holdings - token_amount
+    
+    # 2. Add back to inventory (Buyback model)
+    current_available = property_data.get('available_tokens', property_data['total_tokens'])
+    properties_db[property_id]['available_tokens'] = current_available + token_amount
+    
+    # Record transaction
+    transaction = {
+        'txn_id': f"TXN-{len(transactions_db) + 1}",
+        'type': 'sell',
+        'buyer': 'ISSUER', # Selling back to platform
+        'seller': user_id,
+        'property_id': property_id,
+        'token_amount': token_amount,
+        'price': total_price,
+        'fee': fee,
+        'payment_ref': data.get('payment_ref'),
+        'order_id': data.get('order_id'),
         'timestamp': storage_manager.get_timestamp()
     }
     
@@ -382,7 +624,8 @@ def buy_tokens():
     
     return jsonify({
         'success': True,
-        'transaction': transaction
+        'transaction': transaction,
+        'new_balance': users_db[user_id]['portfolio'][property_id]
     })
 
 

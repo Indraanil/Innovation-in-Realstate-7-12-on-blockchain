@@ -4,18 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Property - BharatPropChain</title>
+    <title>Tokenize My Asset - BharatPropChain</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>🏛️ BharatPropChain</h1>
+                <h1 onclick="window.location.href='index.html'">🏛️ BharatPropChain</h1>
+                <p class="tagline">Issuance Portal</p>
             </div>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="kyc-verification.html">KYC</a>
                 <a href="marketplace.html">Marketplace</a>
                 <a href="register-property.html">Register Property</a>
                 <a href="dashboard.html">Dashboard</a>
@@ -24,97 +29,141 @@
         </div>
     </nav>
 
-    <section style="padding: 3rem 0;">
-        <div class="container" style="max-width: 800px;">
-            <h1 class="section-title">Register Your Property</h1>
-
-            <!-- Progress Steps -->
-            <div class="progress-steps" style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
-                <div class="step active">
-                    <div class="step-number">1</div>
-                    <p>Property Details</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <p>Documents</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <p>Verification</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <p>Tokenization</p>
-                </div>
+    <section style="padding: 4rem 0;" class="animate-in">
+        <div class="container" style="max-width: 1100px;">
+            <div style="margin-bottom: 3rem;">
+                <h1 class="hero-title" style="font-size: 2.5rem; text-align: left; margin-bottom: 0.5rem;">Tokenize My
+                    Asset</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Convert your physical real estate into digital,
+                    liquid assets.</p>
             </div>
 
-            <!-- Registration Form -->
-            <form id="propertyForm" style="background: white; padding: 2rem; border-radius: 12px;">
-                <h3 style="margin-bottom: 1.5rem;">Property Information</h3>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; align-items: start;">
+                <!-- Registration Form -->
+                <div class="widget glass" style="padding: 2.5rem;">
+                    <form id="propertyForm">
+                        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--primary);">
+                            Asset Information</h3>
 
-                <div class="form-group">
-                    <label>Property Name *</label>
-                    <input type="text" id="propertyName" required placeholder="e.g., Green Valley Apartments">
+                        <div class="form-group">
+                            <label>Legal Asset Name</label>
+                            <input type="text" id="propertyName" required placeholder="e.g., Executive Corporate Tower">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="form-group">
+                                <label>Asset Class</label>
+                                <select id="propertyType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="residential">Residential</option>
+                                    <option value="commercial" selected>Commercial</option>
+                                    <option value="campus">Campus</option>
+                                    <option value="industrial">Industrial</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" id="city" required placeholder="e.g., Mumbai">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Geospatial Address</label>
+                            <textarea id="location" required rows="2"
+                                placeholder="Functional address for legal mapping"></textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="form-group">
+                                <label>Total Value (₹)</label>
+                                <input type="number" id="totalValue" required placeholder="e.g., 50000000">
+                            </div>
+                            <div class="form-group">
+                                <label>Token Multiplier</label>
+                                <input type="number" id="totalTokens" required value="1000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ownership Deed (PDF/JPG)</label>
+                            <input type="file" id="propertyDeed" accept="image/*,.pdf">
+                        </div>
+
+                        <input type="hidden" id="latitude">
+                        <input type="hidden" id="longitude">
+                        <input type="hidden" id="state">
+                        <input type="hidden" id="pincode">
+                        <input type="hidden" id="areaSqft" value="2500">
+
+                        <button type="submit" class="btn-primary"
+                            style="width: 100%; justify-content: center; padding: 1.25rem; font-size: 1.1rem; border-radius: 12px; margin-top: 1rem;">
+                            Digitize & Submit Asset
+                        </button>
+                    </form>
+
+                    <!-- Results Section -->
+                    <div id="resultsSection" style="display: none; text-align: center; padding: 2rem 0;"
+                        class="animate-in">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                        <h2 style="font-weight: 800; margin-bottom: 1rem;">Asset Digitize Successfully</h2>
+                        <p id="propertyId"
+                            style="font-family: monospace; color: var(--text-muted); margin-bottom: 2rem;"></p>
+
+                        <div id="verificationResults" class="glass"
+                            style="padding: 1.5rem; text-align: left; margin-bottom: 2rem; border: 1px solid var(--accent-light);">
+                        </div>
+
+                        <button id="tokenizeBtn" class="btn-primary"
+                            style="width: 100%; justify-content: center; padding: 1.25rem; font-size: 1.1rem; border-radius: 12px;">
+                            Mint Algorand ASA
+                        </button>
+                    </div>
+
+                    <!-- KYC Required Section -->
+                    <div id="kycRequiredSection" style="display: none; text-align: center; padding: 3rem 0;"
+                        class="animate-in">
+                        <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔒</div>
+                        <h2 style="font-weight: 800; margin-bottom: 1rem; font-size: 1.75rem;">Institutional Access
+                            Restricted</h2>
+                        <p
+                            style="color: var(--text-muted); margin-bottom: 2.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            To register and tokenize institutional assets, you must first complete the **Identity Trust
+                            Protocol**.
+                        </p>
+                        <button onclick="window.location.href='kyc-verification.html'" class="btn-primary"
+                            style="width: 100%; justify-content: center; padding: 1.25rem; border-radius: 12px;">
+                            Complete KYC Verification
+                        </button>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Property Type *</label>
-                    <select id="propertyType" required>
-                        <option value="">Select Type</option>
-                        <option value="residential">Residential</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="campus">Campus</option>
-                        <option value="industrial">Industrial</option>
-                    </select>
-                </div>
+                <!-- Guidance & Map -->
+                <div>
+                    <div class="widget"
+                        style="padding: 0; overflow: hidden; margin-bottom: 2rem; height: 350px; border: 1px solid var(--border-light);">
+                        <div id="locationMap" style="height: 100%; z-index: 1;"></div>
+                    </div>
 
-                <div class="form-group">
-                    <label>City *</label>
-                    <input type="text" id="city" required placeholder="e.g., Mumbai">
-                </div>
-
-                <div class="form-group">
-                    <label>Location/Address *</label>
-                    <textarea id="location" required rows="3" placeholder="Full address"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Area (sq ft) *</label>
-                    <input type="number" id="areaSqft" required placeholder="e.g., 2000">
-                </div>
-
-                <div class="form-group">
-                    <label>Total Property Value (₹) *</label>
-                    <input type="number" id="totalValue" required placeholder="e.g., 50000000">
-                </div>
-
-                <div class="form-group">
-                    <label>Total Tokens to Issue *</label>
-                    <input type="number" id="totalTokens" required value="1000" placeholder="e.g., 1000">
-                    <small style="color: #666;">Recommended: 100-10000 tokens</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Upload Property Deed</label>
-                    <input type="file" id="propertyDeed" accept="image/*,.pdf">
-                </div>
-
-                <button type="submit" class="btn-primary btn-large" style="width: 100%;">
-                    Register Property
-                </button>
-            </form>
-
-            <!-- Results Section -->
-            <div id="resultsSection" style="display: none; margin-top: 2rem;">
-                <div style="background: white; padding: 2rem; border-radius: 12px;">
-                    <h3>✅ Property Registered Successfully!</h3>
-                    <p id="propertyId" style="margin: 1rem 0;"></p>
-
-                    <div id="verificationResults" style="margin-top: 1.5rem;"></div>
-
-                    <button id="tokenizeBtn" class="btn-primary btn-large" style="width: 100%; margin-top: 1rem;">
-                        Tokenize on Algorand
-                    </button>
+                    <div class="widget glass" style="padding: 2rem; border-left: 4px solid var(--primary);">
+                        <h4 style="font-weight: 800; margin-bottom: 1rem;">Institutional Requirements</h4>
+                        <ul style="list-style: none; padding: 0; display: grid; gap: 1rem;">
+                            <li style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 0.75rem;">
+                                <span>🏛️</span>
+                                <div><strong>Legal Standing:</strong> Ensure the property has clear title deeds without
+                                    liens.</div>
+                            </li>
+                            <li style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 0.75rem;">
+                                <span>📊</span>
+                                <div><strong>Valuation:</strong> Our ML model will verify the value based on market
+                                    data.</div>
+                            </li>
+                            <li style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 0.75rem;">
+                                <span>⛓️</span>
+                                <div><strong>Finality:</strong> Tokenization creates a permanent immutable record on
+                                    Algorand.</div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,64 +172,131 @@
     <script src="app.js"></script>
     <script>
         let currentPropertyId = null;
+        let map, marker;
+
+        async function initLocationMap() {
+            map = L.map('locationMap', { scrollWheelZoom: false }).setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    map.setView([p.coords.latitude, p.coords.longitude], 13);
+                });
+            }
+
+            map.on('click', async e => {
+                const { lat, lng } = e.latlng;
+                if (marker) map.removeLayer(marker);
+                marker = L.marker([lat, lng]).addTo(map);
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                    const data = await res.json();
+                    if (data.display_name) {
+                        document.getElementById('location').value = data.display_name;
+                        if (data.address.city) document.getElementById('city').value = data.address.city;
+                        if (data.address.state) document.getElementById('state').value = data.address.state;
+                        if (data.address.postcode) document.getElementById('pincode').value = data.address.postcode;
+                    }
+                } catch (err) { }
+            });
+        }
+
+        window.addEventListener('load', async () => {
+            await initLocationMap();
+
+            // Check KYC status for registration gating
+            if (accessToken) {
+                const kyc = await checkKYCStatus();
+                if (kyc.status !== 'verified') {
+                    document.getElementById('propertyForm').style.display = 'none';
+                    document.getElementById('kycRequiredSection').style.display = 'block';
+                }
+            } else {
+                // If not even connected, we can still show the map but maybe blur the form
+                document.getElementById('propertyForm').style.opacity = '0.5';
+                document.getElementById('propertyForm').style.pointerEvents = 'none';
+            }
+        });
 
         document.getElementById('propertyForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            if (!accessToken) return alert('Please connect your institutional wallet.');
 
-            if (!accessToken) {
-                alert('Please connect your wallet first');
-                return;
-            }
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'DIGITIZING...';
 
-            const formData = {
-                name: document.getElementById('propertyName').value,
-                type: document.getElementById('propertyType').value,
-                city: document.getElementById('city').value,
-                location: document.getElementById('location').value,
-                area_sqft: parseInt(document.getElementById('areaSqft').value),
-                total_value: parseInt(document.getElementById('totalValue').value),
-                total_tokens: parseInt(document.getElementById('totalTokens').value)
-            };
+            try {
+                const propertyData = {
+                    name: document.getElementById('propertyName').value,
+                    type: document.getElementById('propertyType').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pincode: document.getElementById('pincode').value,
+                    location: document.getElementById('location').value,
+                    latitude: document.getElementById('latitude').value,
+                    longitude: document.getElementById('longitude').value,
+                    area_sqft: parseFloat(document.getElementById('areaSqft').value),
+                    total_value: parseFloat(document.getElementById('totalValue').value),
+                    total_tokens: parseInt(document.getElementById('totalTokens').value)
+                };
 
-            // Register property
-            currentPropertyId = await registerProperty(formData);
+                currentPropertyId = await registerProperty(propertyData);
 
-            if (currentPropertyId) {
-                // Upload document if provided
-                const fileInput = document.getElementById('propertyDeed');
-                if (fileInput.files.length > 0) {
-                    const uploadResult = await uploadDocument(currentPropertyId, fileInput.files[0], 'property_deed');
-                    console.log('Document uploaded:', uploadResult);
+                if (currentPropertyId) {
+                    const fileInput = document.getElementById('propertyDeed');
+                    if (fileInput.files.length > 0) {
+                        await uploadDocument(currentPropertyId, fileInput.files[0], 'property_deed');
+                    }
+
+                    const verificationResult = await verifyProperty(currentPropertyId);
+                    document.getElementById('propertyId').textContent = `ASSET REGISTRY ID: ${currentPropertyId}`;
+
+                    document.getElementById('verificationResults').innerHTML = `
+                        <div style="display: grid; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between;"><strong>Risk Rating:</strong> <span style="color: var(--accent-dark); font-weight: 800;">${verificationResult.risk_score.risk_category}</span></div>
+                            <div style="display: flex; justify-content: space-between;"><strong>ML Confidence:</strong> <span>${verificationResult.risk_score.overall_score}/100</span></div>
+                            <div style="display: flex; justify-content: space-between;"><strong>Price/Token:</strong> <span style="font-weight: 800; color: var(--primary);">₹${formatPrice(verificationResult.valuation.token_value)}</span></div>
+                        </div>
+                    `;
+
+                    document.getElementById('resultsSection').style.display = 'block';
+                    document.getElementById('propertyForm').style.display = 'none';
+                    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
                 }
-
-                // Run verification
-                const verificationResult = await verifyProperty(currentPropertyId);
-
-                // Display results
-                document.getElementById('propertyId').textContent = `Property ID: ${currentPropertyId}`;
-
-                const resultsHTML = `
-                    <h4>AI Verification Results</h4>
-                    <p><strong>Risk Score:</strong> ${verificationResult.risk_score.overall_score}/100 
-                       (${verificationResult.risk_score.risk_category})</p>
-                    <p><strong>Predicted Value:</strong> ₹${formatPrice(verificationResult.valuation.predicted_value)}</p>
-                    <p><strong>Token Value:</strong> ₹${formatPrice(verificationResult.valuation.token_value)} per token</p>
-                `;
-
-                document.getElementById('verificationResults').innerHTML = resultsHTML;
-                document.getElementById('resultsSection').style.display = 'block';
-                document.getElementById('propertyForm').style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                alert('Digitization protocol failed.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Digitize & Submit Asset';
             }
         });
 
         document.getElementById('tokenizeBtn')?.addEventListener('click', async function () {
             if (!currentPropertyId) return;
+            const btn = document.getElementById('tokenizeBtn');
+            btn.disabled = true;
+            btn.textContent = 'MINTING ASA ON ALGORAND...';
 
-            const result = await tokenizeProperty(currentPropertyId);
-
-            if (result.success) {
-                alert(`Property tokenized successfully!\n\nAsset ID: ${result.asset_id}\n\nView on AlgoExplorer: ${result.explorer_url}`);
-                window.location.href = 'dashboard.html';
+            try {
+                const result = await tokenizeProperty(currentPropertyId);
+                if (result && result.success) {
+                    alert(`Asset minted successfully!\nASA ID: ${result.asset_id}`);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Minting failed: ' + (result?.error || 'Unknown Error'));
+                }
+            } catch (err) {
+                alert('Blockchain network error.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Mint Algorand ASA';
             }
         });
     </script>

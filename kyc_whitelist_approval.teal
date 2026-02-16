@@ -1,0 +1,120 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l16
+txn OnCompletion
+int OptIn
+==
+bnz main_l15
+txn OnCompletion
+int CloseOut
+==
+bnz main_l14
+txna ApplicationArgs 0
+byte "add_whitelist"
+==
+bnz main_l13
+txna ApplicationArgs 0
+byte "remove_whitelist"
+==
+bnz main_l12
+txna ApplicationArgs 0
+byte "check_status"
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte "update_admin"
+==
+bnz main_l10
+int 1
+bnz main_l9
+err
+main_l9:
+int 0
+return
+main_l10:
+txn Sender
+byte "admin"
+app_global_get
+==
+assert
+byte "admin"
+txna ApplicationArgs 1
+app_global_put
+int 1
+return
+main_l11:
+txn Sender
+byte "kyc_approved"
+app_local_get
+return
+main_l12:
+txn Sender
+byte "admin"
+app_global_get
+==
+assert
+txna Accounts 1
+byte "kyc_approved"
+app_local_get
+int 1
+==
+assert
+txna Accounts 1
+byte "kyc_approved"
+int 0
+app_local_put
+byte "whitelist_count"
+byte "whitelist_count"
+app_global_get
+int 1
+-
+app_global_put
+int 1
+return
+main_l13:
+txn Sender
+byte "admin"
+app_global_get
+==
+assert
+txna Accounts 1
+byte "kyc_approved"
+int 1
+app_local_put
+txna Accounts 1
+byte "kyc_hash"
+txna ApplicationArgs 2
+app_local_put
+txna Accounts 1
+byte "kyc_timestamp"
+global LatestTimestamp
+app_local_put
+byte "whitelist_count"
+byte "whitelist_count"
+app_global_get
+int 1
++
+app_global_put
+int 1
+return
+main_l14:
+int 1
+return
+main_l15:
+txn Sender
+byte "kyc_approved"
+int 0
+app_local_put
+int 1
+return
+main_l16:
+byte "admin"
+txn Sender
+app_global_put
+byte "whitelist_count"
+int 0
+app_global_put
+int 1
+return

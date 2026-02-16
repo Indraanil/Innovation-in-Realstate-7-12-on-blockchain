@@ -1,0 +1,143 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l16
+txn OnCompletion
+int OptIn
+==
+bnz main_l15
+txna ApplicationArgs 0
+byte "set_kyc"
+==
+bnz main_l14
+txna ApplicationArgs 0
+byte "store_doc"
+==
+bnz main_l13
+txna ApplicationArgs 0
+byte "verify"
+==
+bnz main_l12
+txna ApplicationArgs 0
+byte "mint"
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte "transfer"
+==
+bnz main_l10
+int 1
+bnz main_l9
+err
+main_l9:
+int 0
+return
+main_l10:
+txn Sender
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+>=
+assert
+txn Sender
+byte "balance"
+txn Sender
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+-
+app_local_put
+txna Accounts 1
+byte "balance"
+txna Accounts 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+app_local_put
+int 1
+return
+main_l11:
+txn Sender
+byte "owner"
+app_global_get
+==
+assert
+byte "verified"
+app_global_get
+int 1
+==
+assert
+byte "property_id"
+txna ApplicationArgs 1
+app_global_put
+byte "property_hash"
+txna ApplicationArgs 2
+app_global_put
+byte "total_value"
+txna ApplicationArgs 3
+btoi
+app_global_put
+byte "token_supply"
+txna ApplicationArgs 4
+btoi
+app_global_put
+int 1
+return
+main_l12:
+txn Sender
+byte "owner"
+app_global_get
+==
+assert
+byte "property_hash"
+txna ApplicationArgs 1
+app_global_put
+byte "verified"
+int 1
+app_global_put
+int 1
+return
+main_l13:
+txn Sender
+byte "owner"
+app_global_get
+==
+assert
+byte "document_hash"
+txna ApplicationArgs 1
+app_global_put
+int 1
+return
+main_l14:
+txn Sender
+byte "owner"
+app_global_get
+==
+assert
+byte "kyc_contract_id"
+txna ApplicationArgs 1
+btoi
+app_global_put
+int 1
+return
+main_l15:
+txn Sender
+byte "balance"
+int 0
+app_local_put
+int 1
+return
+main_l16:
+byte "owner"
+txn Sender
+app_global_put
+byte "verified"
+int 0
+app_global_put
+int 1
+return

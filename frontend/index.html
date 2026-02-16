@@ -16,10 +16,11 @@
         <div class="container">
             <div class="nav-brand">
                 <h1>🏛️ BharatPropChain</h1>
-                <p class="tagline">Democratizing Real Estate Investment</p>
+                <p class="tagline">The Standard for Real Estate Tokenization</p>
             </div>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="kyc-verification.html">KYC</a>
                 <a href="marketplace.html">Marketplace</a>
                 <a href="register-property.html">Register Property</a>
                 <a href="dashboard.html">Dashboard</a>
@@ -29,110 +30,109 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero animate-in">
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-title">Transform Real Estate into Digital Assets</h1>
+                <div class="badge badge-info" style="margin-bottom: 2rem;">Now on Algorand TestNet 🚀</div>
+                <h1 class="hero-title">Institutional Grade Real Estate, <br>Fractional Ownership.</h1>
                 <p class="hero-subtitle">
-                    India's first blockchain-powered property tokenization platform.
-                    Own fractions of premium properties, trade securely, and earn rental income.
+                    Transforming premium Indian real estate into digital, liquid assets.
+                    Secure, transparent, and accessible to everyone.
                 </p>
                 <div class="hero-buttons">
-                    <a href="register-property.html" class="btn-primary btn-large">Tokenize Property</a>
-                    <a href="marketplace.html" class="btn-secondary btn-large">Explore Properties</a>
+                    <a href="marketplace.html" class="btn-primary"
+                        style="padding: 1rem 2.5rem; font-size: 1.1rem;">Start Investing</a>
+                    <a href="register-property.html" class="btn-secondary"
+                        style="padding: 1rem 2.5rem; font-size: 1.1rem;">Tokenize My Asset</a>
                 </div>
             </div>
-            <div class="hero-stats">
-                <div class="stat-card">
-                    <h3 id="totalProperties">0</h3>
-                    <p>Properties Tokenized</p>
+
+            <div class="dashboard-grid" style="margin-top: 5rem;">
+                <div class="widget animate-in" style="animation-delay: 0.1s;">
+                    <div class="widget-title">Total Tokenized Assets</div>
+                    <h2 id="totalProperties" style="font-size: 2.5rem; font-weight: 800; color: var(--primary);">0</h2>
                 </div>
-                <div class="stat-card">
-                    <h3 id="totalValue">₹0</h3>
-                    <p>Total Value Locked</p>
+                <div class="widget animate-in" style="animation-delay: 0.2s;">
+                    <div class="widget-title">Total Value Locked</div>
+                    <h2 id="totalValue" style="font-size: 2.5rem; font-weight: 800; color: var(--accent);">₹0</h2>
                 </div>
-                <div class="stat-card">
-                    <h3 id="totalUsers">0</h3>
-                    <p>Active Investors</p>
+                <div class="widget animate-in" style="animation-delay: 0.3s;">
+                    <div class="widget-title">Global Investors</div>
+                    <h2 id="totalUsers" style="font-size: 2.5rem; font-weight: 800; color: var(--info);">0</h2>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features">
+    <section class="features animate-in" style="background: white; padding: 6rem 0;">
         <div class="container">
-            <h2 class="section-title">Why BharatPropChain?</h2>
+            <h2 class="section-title">The BharatPropChain Edge</h2>
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
-                    <h3>Blockchain Security</h3>
-                    <p>Built on Algorand blockchain for immutable, transparent property records</p>
+                <div class="card property-card" style="padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1.5rem;">🔗</div>
+                    <h3 style="margin-bottom: 1rem;">Algorand Hybrid Ledger</h3>
+                    <p style="color: var(--text-muted);">High-frequency trading meets absolute legal finality on
+                        Algorand's layer-1.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🤖</div>
-                    <h3>AI Verification</h3>
-                    <p>ML-powered document verification, fraud detection, and risk scoring</p>
+                <div class="card property-card" style="padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1.5rem;">🤖</div>
+                    <h3 style="margin-bottom: 1rem;">AI Registry Link</h3>
+                    <p style="color: var(--text-muted);">Real-time verification of Land Registry records using advanced
+                        machine learning.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚖️</div>
-                    <h3>Legal Compliance</h3>
-                    <p>KYC/AML verification, DigiLocker integration, and government registry linking</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>Fractional Ownership</h3>
-                    <p>Invest in premium properties with as little as ₹10,000</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Automated Income</h3>
-                    <p>Smart contracts distribute rental income proportionally to token holders</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🗳️</div>
-                    <h3>Governance Rights</h3>
-                    <p>Vote on property decisions based on your token ownership</p>
+                <div class="card property-card" style="padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1.5rem;">⚖️</div>
+                    <h3 style="margin-bottom: 1rem;">Standardized RWA</h3>
+                    <p style="color: var(--text-muted);">Fully compliant fractionalization framework approved by tier-1
+                        legal experts.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- How It Works -->
-    <section class="how-it-works">
+    <section class="how-it-works animate-in" style="padding: 6rem 0;">
         <div class="container">
-            <h2 class="section-title">How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Complete KYC</h3>
-                    <p>Verify your identity with Aadhaar and PAN</p>
+            <h2 class="section-title">Investment Lifecycle</h2>
+            <div class="dashboard-grid">
+                <div class="widget" style="text-align: center;">
+                    <div
+                        style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-weight: 800;">
+                        1</div>
+                    <h4>KYC Onboarding</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Verify your investor
+                        status via AI-Aadhaar link.</p>
                 </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Register Property</h3>
-                    <p>Upload property documents for AI verification</p>
+                <div class="widget" style="text-align: center;">
+                    <div
+                        style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-weight: 800;">
+                        2</div>
+                    <h4>Fractional Buy</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Browse verified RWAs and
+                        purchase tokens instantly.</p>
                 </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Tokenize</h3>
-                    <p>Create digital tokens on Algorand blockchain</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Trade & Earn</h3>
-                    <p>Buy, sell, and earn rental income automatically</p>
+                <div class="widget" style="text-align: center;">
+                    <div
+                        style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-weight: 800;">
+                        3</div>
+                    <h4>Automated Yield</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Smart contracts
+                        distribute rental yields to your wallet.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="cta">
+    <section class="cta animate-in"
+        style="background: var(--primary); color: white; padding: 6rem 0; text-align: center;">
         <div class="container">
-            <h2>Ready to Get Started?</h2>
-            <p>Join India's property tokenization revolution</p>
-            <button id="getStartedBtn" class="btn-primary btn-large">Get Started Now</button>
+            <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem;">Shape the Future of Real Estate</h2>
+            <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 2.5rem;">Start your portfolio with high-yield
+                tokens today.</p>
+            <button id="getStartedBtn" class="btn-primary"
+                style="background: white; color: var(--primary); padding: 1rem 3rem;">Enter App</button>
         </div>
     </section>
 
@@ -141,24 +141,24 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>BharatPropChain</h3>
-                    <p>Democratizing real estate investment through blockchain technology</p>
+                    <h1 style="color: white; margin-bottom: 1rem;">🏛️ BPC</h1>
+                    <p style="color: #64748b;">The Institutional Standard for RWAs.</p>
                 </div>
                 <div class="footer-section">
-                    <h4>Platform</h4>
+                    <h4>Navigation</h4>
                     <a href="marketplace.html">Marketplace</a>
-                    <a href="register-property.html">Register Property</a>
-                    <a href="dashboard.html">Dashboard</a>
+                    <a href="register-property.html">Tokenize Asset</a>
+                    <a href="dashboard.html">Investor Portal</a>
                 </div>
                 <div class="footer-section">
-                    <h4>Blockchain</h4>
-                    <p>Algorand TestNet</p>
-                    <a href="https://testnet.algoexplorer.io" target="_blank">AlgoExplorer</a>
+                    <h4>Technology</h4>
+                    <p style="color: #64748b;">Algorand PURE POS</p>
+                    <a href="https://testnet.algoexplorer.io" target="_blank">View Ledger</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 BharatPropChain. Built for hackathon demonstration.</p>
-                <p class="disclaimer">⚠️ Blockchain records are verification layers, not legal replacements</p>
+                <p>&copy; 2024 BharatPropChain. Institutional RWA Management.</p>
+                <p style="color: var(--accent); font-weight: 600; margin-top: 0.5rem;">Safe. Secure. Transparent.</p>
             </div>
         </div>
     </footer>

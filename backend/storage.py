@@ -16,10 +16,14 @@ class StorageManager:
     def __init__(self):
         self.upload_folder = os.getenv('UPLOAD_FOLDER', './storage/uploads')
         self.encrypted_folder = os.getenv('ENCRYPTED_FOLDER', './storage/encrypted')
+        self.kyc_folder = os.path.join(self.upload_folder, 'kyc')
+        self.rwa_folder = os.path.join(self.upload_folder, 'rwa')
         
         # Create directories
         os.makedirs(self.upload_folder, exist_ok=True)
         os.makedirs(self.encrypted_folder, exist_ok=True)
+        os.makedirs(self.kyc_folder, exist_ok=True)
+        os.makedirs(self.rwa_folder, exist_ok=True)
         
         # Encryption key (in production: use proper key management)
         self.key = get_random_bytes(32)
@@ -39,6 +43,36 @@ class StorageManager:
         return {
             'file_path': file_path,
             'encrypted_path': encrypted_path,
+            'filename': filename,
+            'timestamp': self.get_timestamp()
+        }
+    
+    def save_kyc_document(self, file, user_id, doc_type):
+        """Save KYC document"""
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Save to KYC folder
+        file_path = os.path.join(self.kyc_folder, f"{user_id}_{doc_type}_{timestamp}_{filename}")
+        file.save(file_path)
+        
+        return {
+            'file_path': file_path,
+            'filename': filename,
+            'timestamp': self.get_timestamp()
+        }
+    
+    def save_rwa_document(self, file, property_id, doc_type):
+        """Save RWA document"""
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Save to RWA folder
+        file_path = os.path.join(self.rwa_folder, f"{property_id}_{doc_type}_{timestamp}_{filename}")
+        file.save(file_path)
+        
+        return {
+            'file_path': file_path,
             'filename': filename,
             'timestamp': self.get_timestamp()
         }

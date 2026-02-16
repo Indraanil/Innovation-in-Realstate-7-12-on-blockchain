@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust Verification - BharatPropChain</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1 onclick="window.location.href='index.html'">🏛️ BharatPropChain</h1>
+                <p class="tagline">Compliance Portal</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="kyc-verification.html">KYC</a>
+                <a href="marketplace.html">Marketplace</a>
+                <a href="register-property.html">Register Property</a>
+                <a href="dashboard.html">Dashboard</a>
+                <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding: 4rem 0;" class="animate-in">
+        <div class="container" style="max-width: 900px;">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <h1 class="hero-title" style="font-size: 3rem; margin-bottom: 0.5rem;">Identity Trust Protocol</h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem;">Secure your investment profile with
+                    institutional verification.</p>
+                <div id="statusBadge" style="margin-top: 1.5rem;"></div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem;">
+                <!-- Progress & Steps -->
+                <div class="widget glass" style="padding: 2.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800;">Protocol Progress</h3>
+                        <span id="progressText" style="font-weight: 700; color: var(--primary);">0% Complete</span>
+                    </div>
+                    <div class="progress-container" style="height: 12px; margin-bottom: 3rem;">
+                        <div id="progressFill" class="progress-bar" style="width: 0%; border-radius: 10px;"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; position: relative;">
+                        <!-- Step 1 -->
+                        <div id="step1" style="text-align: center;">
+                            <div
+                                style="width: 48px; height: 48px; border-radius: 50%; background: var(--border-light); color: var(--text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; border: 4px solid white; transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                1</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">National ID
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div id="step2" style="text-align: center;">
+                            <div
+                                style="width: 48px; height: 48px; border-radius: 50%; background: var(--border-light); color: var(--text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; border: 4px solid white; transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                2</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Tax Credential
+                            </div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div id="step3" style="text-align: center;">
+                            <div
+                                style="width: 48px; height: 48px; border-radius: 50%; background: var(--border-light); color: var(--text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; border: 4px solid white; transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                3</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Biometric Scan
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div id="step4" style="text-align: center;">
+                            <div
+                                style="width: 48px; height: 48px; border-radius: 50%; background: var(--border-light); color: var(--text-muted); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-weight: 800; border: 4px solid white; transition: all 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                                4</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Blockchain
+                                Finality</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="kycFlowContent">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <!-- Aadhaar Card -->
+                        <div class="widget" id="aadhaarSection"
+                            style="padding: 2rem; border: 2px dashed var(--border-light); transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📄</div>
+                            <h3 style="margin-bottom: 0.5rem;">Aadhaar Card</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Upload a
+                                clear scan of your 12-digit national identity card.</p>
+                            <input type="file" id="aadhaarInput" style="display: none;" accept="image/*">
+                            <button class="btn-secondary" style="width: 100%; justify-content: center;"
+                                onclick="document.getElementById('aadhaarInput').click()">Select Document</button>
+                            <div id="aadhaarPreview"
+                                style="margin-top: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--accent-dark); display: none;">
+                                ✓ Uploaded</div>
+                        </div>
+
+                        <!-- PAN Card -->
+                        <div class="widget" id="panSection"
+                            style="padding: 2rem; border: 2px dashed var(--border-light); transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
+                            <h3 style="margin-bottom: 0.5rem;">Tax/PAN Card</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Used for tax
+                                compliance and capital gains reporting.</p>
+                            <input type="file" id="panInput" style="display: none;" accept="image/*">
+                            <button class="btn-secondary" style="width: 100%; justify-content: center;"
+                                onclick="document.getElementById('panInput').click()">Select Document</button>
+                            <div id="panPreview"
+                                style="margin-top: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--accent-dark); display: none;">
+                                ✓ Uploaded</div>
+                        </div>
+
+                        <!-- Selfie -->
+                        <div class="widget" id="selfieSection"
+                            style="padding: 2rem; border: 2px dashed var(--border-light); transition: all 0.3s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤳</div>
+                            <h3 style="margin-bottom: 0.5rem;">Live Biometric</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Provide a
+                                live selfie to match your document profile.</p>
+                            <input type="file" id="selfieInput" style="display: none;" accept="image/*">
+                            <button class="btn-secondary" style="width: 100%; justify-content: center;"
+                                onclick="document.getElementById('selfieInput').click()">Capture Image</button>
+                            <div id="selfiePreview"
+                                style="margin-top: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--accent-dark); display: none;">
+                                ✓ Captured</div>
+                        </div>
+                    </div>
+
+                    <button id="submitBtn" class="btn-primary"
+                        style="width: 100%; justify-content: center; padding: 1.5rem; font-size: 1.25rem; margin-top: 3rem; border-radius: 12px;"
+                        disabled>
+                        Initiate Protocol Verification
+                    </button>
+                </div>
+
+                <div id="resultMessage"></div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .step-circle-active {
+            background: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary-light) !important;
+        }
+
+        .step-circle-completed {
+            background: var(--accent) !important;
+            color: white !important;
+            border-color: var(--accent-light) !important;
+        }
+
+        .upload-success {
+            border-color: var(--accent) !important;
+            background: rgba(16, 185, 129, 0.05) !important;
+        }
+    </style>
+
+    <script src="app.js"></script>
+    <script>
+        let uploadedDocs = { aadhaar: false, pan: false, selfie: false };
+
+        window.addEventListener('load', async () => {
+            if (accessToken) await loadKYCStatus();
+        });
+
+        async function loadKYCStatus() {
+            try {
+                const data = await apiCall('/api/kyc/status');
+                updateUIWithStatus(data);
+            } catch (error) {
+                console.error('Error loading KYC status:', error);
+            }
+        }
+
+        function updateUIWithStatus(data) {
+            const progress = data.progress || 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${progress}% Complete`;
+
+            if (data.status === 'verified') {
+                document.getElementById('statusBadge').innerHTML = '<span class="badge badge-success" style="font-size: 1.1rem; padding: 0.5rem 1.5rem;">🛡️ Protocol Verified</span>';
+                document.getElementById('kycFlowContent').style.display = 'none';
+                document.getElementById('resultMessage').innerHTML = `
+                    <div class="widget glass animate-in" style="padding: 3rem; text-align: center; border: 1px solid var(--accent-light);">
+                        <h2 style="font-size: 2rem; color: var(--accent-dark); margin-bottom: 1rem;">Verification Complete</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Your on-chain identity has been successfully linked and verified.</p>
+                        <button onclick="window.location.href='dashboard.html'" class="btn-primary" style="padding: 1rem 2.5rem;">Go to Dashboard</button>
+                    </div>
+                `;
+            } else if (data.status === 'in_review') {
+                document.getElementById('statusBadge').innerHTML = '<span class="badge badge-info" style="font-size: 1.1rem; padding: 0.5rem 1.5rem;">⏳ Processing Institutional Review</span>';
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').textContent = 'Verification in Progress...';
+            }
+
+            // Update step circles
+            if (data.verification_steps) {
+                if (data.verification_steps.aadhaar_verified) {
+                    uploadedDocs.aadhaar = true;
+                    markStep(1, 'completed');
+                }
+                if (data.verification_steps.pan_verified) {
+                    uploadedDocs.pan = true;
+                    markStep(2, 'completed');
+                }
+                if (data.verification_steps.face_matched) {
+                    uploadedDocs.selfie = true;
+                    markStep(3, 'completed');
+                }
+            }
+            updateSubmitButton();
+        }
+
+        function markStep(num, status) {
+            const step = document.querySelector(`#step${num} div:first-child`);
+            if (status === 'completed') {
+                step.classList.add('step-circle-completed');
+                step.innerHTML = '✓';
+            } else if (status === 'active') {
+                step.classList.add('step-circle-active');
+            }
+        }
+
+        async function handleUpload(file, type, sectionId, previewId, stepNum) {
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('doc_type', type);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/kyc/upload-document`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${accessToken}` },
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    uploadedDocs[type] = true;
+                    document.getElementById(sectionId).classList.add('upload-success');
+                    document.getElementById(previewId).style.display = 'block';
+                    markStep(stepNum, 'active');
+                    updateSubmitButton();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('aadhaarInput').addEventListener('change', e => handleUpload(e.target.files[0], 'aadhaar', 'aadhaarSection', 'aadhaarPreview', 1));
+        document.getElementById('panInput').addEventListener('change', e => handleUpload(e.target.files[0], 'pan', 'panSection', 'panPreview', 2));
+        document.getElementById('selfieInput').addEventListener('change', e => handleUpload(e.target.files[0], 'selfie', 'selfieSection', 'selfiePreview', 3));
+
+        function updateSubmitButton() {
+            document.getElementById('submitBtn').disabled = !(uploadedDocs.aadhaar && uploadedDocs.pan && uploadedDocs.selfie);
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'MINTING VERIFICATION PROOF...';
+
+            try {
+                const result = await apiCall('/api/kyc/submit', 'POST');
+                if (result.success) {
+                    markStep(4, 'completed');
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            } catch (e) { btn.disabled = false; btn.textContent = 'Retry Protocol Verification'; }
+        });
+    </script>
+</body>
+
+</html>

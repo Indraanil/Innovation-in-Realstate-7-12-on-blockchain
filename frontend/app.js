@@ -197,6 +197,17 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     return await response.json();
 }
 
+async function checkKYCStatus() {
+    if (!accessToken) return { status: 'none' };
+    try {
+        const data = await apiCall('/api/kyc/status');
+        return data;
+    } catch (error) {
+        console.error('Error fetching KYC status:', error);
+        return { status: 'error' };
+    }
+}
+
 // ============= Property Functions =============
 
 async function loadProperties() {
@@ -208,41 +219,59 @@ async function loadProperties() {
     }
 }
 
-function displayProperties(properties) {
-    const container = document.getElementById('propertiesContainer');
+function displayProperties(properties, containerId = 'propertiesContainer') {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     if (properties.length === 0) {
-        container.innerHTML = '<p class="text-center">No properties available yet</p>';
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><p style="color: var(--text-muted);">No property data found.</p></div>`;
         return;
     }
 
-    container.innerHTML = properties.map(prop => `
-        <div class="property-card">
-            <div class="property-image">🏢</div>
+    container.innerHTML = properties.map(prop => {
+        const pricePerToken = prop.total_value / prop.total_tokens;
+        const availableTokens = prop.available_tokens !== undefined ? prop.available_tokens : prop.total_tokens;
+        const availabilityPct = (availableTokens / prop.total_tokens) * 100;
+
+        return `
+        <div class="card property-card animate-in">
+            <div class="property-image">
+                🏛️
+                <div style="position: absolute; top: 1rem; right: 1rem;">
+                    <span class="badge ${prop.status === 'verified' ? 'badge-success' : 'badge-warning'}">
+                        ${prop.status === 'verified' ? 'Verified' : 'Pending'}
+                    </span>
+                </div>
+            </div>
             <div class="property-info">
-                <h3 class="property-title">${prop.name}</h3>
-                <div class="property-meta">
-                    <span>📍 ${prop.city}</span>
-                    <span>📐 ${prop.area_sqft} sq ft</span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <h3 class="property-title">${prop.name}</h3>
+                    <span class="badge badge-info">${prop.type}</span>
                 </div>
-                <div class="property-price">₹${formatPrice(prop.total_value)}</div>
-                <div class="property-meta">
-                    <span>🪙 ${prop.total_tokens} tokens</span>
-                    <span class="badge badge-success">${prop.status}</span>
-                </div>
-                ${prop.risk_score ? `
-                    <div class="property-meta">
-                        <span>Risk: ${prop.risk_score.risk_category}</span>
-                        <span>Score: ${prop.risk_score.overall_score}/100</span>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">📍 ${prop.city} | ID: ${prop.property_id}</p>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem; font-weight: 600;">
+                        <span>Availability</span>
+                        <span>${availableTokens} / ${prop.total_tokens}</span>
                     </div>
-                ` : ''}
-                <button class="btn-primary" onclick="viewProperty('${prop.property_id}')">
-                    View Details
-                </button>
+                    <div class="progress-container" style="margin: 0;">
+                        <div class="progress-bar" style="width: ${availabilityPct}%"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Market Value</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">₹${formatPrice(prop.total_value)}</div>
+                    </div>
+                    <button class="btn-primary" onclick="viewProperty('${prop.property_id}')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        View Asset
+                    </button>
+                </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function formatPrice(price) {
@@ -263,6 +292,14 @@ async function viewProperty(propertyId) {
 async function registerProperty(formData) {
     if (!accessToken) {
         alert('Please connect your wallet first');
+        return;
+    }
+
+    // Direct KYC enforcement
+    const kyc = await checkKYCStatus();
+    if (kyc.status !== 'verified') {
+        alert('Institutional Registration Blocked: KYC verification is required to tokenize assets.');
+        window.location.href = 'kyc-verification.html';
         return;
     }
 
@@ -365,20 +402,92 @@ async function buyTokens(propertyId, tokenAmount) {
     }
 
     try {
+        // Step 1: Get property price info for payment gateway
+        const propertyRes = await apiCall(`/api/properties/${propertyId}`);
+        const property = propertyRes.property;
+        const pricePerToken = property.total_value / property.total_tokens;
+        const totalAmount = pricePerToken * tokenAmount;
+
+        // Step 2: Trigger Payment Gateway (Simulated Razorpay)
+        const paymentResult = await PaymentGateway.triggerCheckout({
+            amount: totalAmount,
+            name: currentUser ? currentUser.name : 'Valued Investor',
+            email: currentUser ? currentUser.email : '',
+            propertyId: propertyId
+        });
+
+        if (!paymentResult.success) {
+            alert('Payment cancelled or failed.');
+            return;
+        }
+
+        // Step 3: Call API to finalize token purchase with payment reference
         const data = await apiCall('/api/trade/buy', 'POST', {
             property_id: propertyId,
-            token_amount: tokenAmount
+            token_amount: tokenAmount,
+            payment_ref: paymentResult.payment_ref,
+            order_id: paymentResult.order_id
         });
 
         if (data.success) {
-            alert('Tokens purchased successfully!');
+            alert('Payment Confirmed & Tokens Purchased Successfully!');
             return data.transaction;
         } else {
-            alert('Purchase failed: ' + (data.error || 'Unknown error'));
+            alert('Purchase failed after payment: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Trading error:', error);
-        alert('Failed to buy tokens');
+        if (error.success === false) return; // User cancelled
+        alert('Failed to buy tokens: ' + error.message);
+    }
+}
+
+async function sellTokens(propertyId, tokenAmount) {
+    if (!accessToken) {
+        alert('Please connect your wallet first');
+        return;
+    }
+
+    try {
+        // Step 1: Get property price info for payout
+        const propertyRes = await apiCall(`/api/properties/${propertyId}`);
+        const property = propertyRes.property;
+        const pricePerToken = property.total_value / property.total_tokens;
+        const totalPayout = pricePerToken * tokenAmount;
+
+        // Step 2: Trigger Payment Gateway (Simulated Payout Flow)
+        const payoutResult = await PaymentGateway.triggerCheckout({
+            amount: totalPayout,
+            name: currentUser ? currentUser.name : 'Valued Investor',
+            email: currentUser ? currentUser.email : '',
+            propertyId: propertyId,
+            mode: 'sell' // SELL mode for payout
+        });
+
+        if (!payoutResult.success) {
+            alert('Payout cancelled or failed.');
+            return null;
+        }
+
+        // Step 3: Call API to finalize token sale with payment reference
+        const data = await apiCall('/api/trade/sell', 'POST', {
+            property_id: propertyId,
+            token_amount: tokenAmount,
+            payment_ref: payoutResult.payment_ref,
+            order_id: payoutResult.order_id
+        });
+
+        if (data.success) {
+            alert('Payout Successful! Tokens debited from your account.');
+            return data;
+        } else {
+            alert('Sale failed: ' + (data.error || 'Unknown error'));
+            return null;
+        }
+    } catch (error) {
+        console.error('Trading error:', error);
+        alert('Failed to sell tokens: ' + error.message);
+        return null;
     }
 }
 
